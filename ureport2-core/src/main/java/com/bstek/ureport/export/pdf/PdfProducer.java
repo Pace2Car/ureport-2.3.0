@@ -203,7 +203,6 @@ public class PdfProducer implements Producer {
 		}
 	}
 
-	
 	private int buildCellHeight(Cell cell,List<Row> rows){
 		int height=cell.getRow().getRealHeight();
 		int rowSpan=cell.getPageRowSpan();

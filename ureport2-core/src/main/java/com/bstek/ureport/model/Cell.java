@@ -564,10 +564,6 @@ public class Cell implements ReportCell {
 	}
 	
 	public void doDataWrapCompute(Context context){
-		Boolean wrapCompute=cellStyle.getWrapCompute();
-		if(wrapCompute==null || !wrapCompute){
-			return;
-		}
 		Object targetData=getFormatData();
 		if(targetData==null || !(targetData instanceof String)){
 			return;
