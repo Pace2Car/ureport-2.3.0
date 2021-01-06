@@ -19,6 +19,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.hssf.usermodel.HSSFCell;
 import org.apache.poi.hssf.usermodel.HSSFCellStyle;
 import org.apache.poi.hssf.usermodel.HSSFFont;
@@ -52,6 +53,7 @@ import com.bstek.ureport.definition.value.SimpleValue;
  * @author Jacky.gao
  * @since 2017年5月27日
  */
+@Slf4j
 public class HSSFExcelParser extends ExcelParser {
 	@Override
 	public ReportDefinition parse(InputStream inputStream) throws Exception {
@@ -65,8 +67,9 @@ public class HSSFExcelParser extends ExcelParser {
 		HSSFWorkbook book=new HSSFWorkbook(inputStream);
 		HSSFSheet sheet=book.getSheetAt(0);
 		int firstRow=0;
-		int rowCount=sheet.getPhysicalNumberOfRows();
+		int rowCount=sheet.getLastRowNum()+1;
 		int maxColumnCount=buildMaxColumn(sheet);
+		log.debug("导入模板文档rowCount: {}，maxColumnCount: {}", rowCount, maxColumnCount);
 		for(int i=firstRow;i<rowCount;i++){
 			HSSFRow row=sheet.getRow(i);
 			if(row==null){
@@ -271,7 +274,7 @@ public class HSSFExcelParser extends ExcelParser {
 	}
 	
 	private int buildMaxColumn(HSSFSheet sheet){
-		int rowCount=sheet.getPhysicalNumberOfRows();
+		int rowCount=sheet.getLastRowNum()+1;
 		int maxColumnCount=0;
 		for(int i=0;i<rowCount;i++){
 			HSSFRow row=sheet.getRow(i);

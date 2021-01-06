@@ -1,12 +1,12 @@
 /*******************************************************************************
  * Copyright 2017 Bstek
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License.  You may obtain a copy
  * of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the
@@ -19,6 +19,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.BorderStyle;
 import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.FillPatternType;
@@ -52,6 +53,7 @@ import com.bstek.ureport.definition.value.SimpleValue;
  * @author Jacky.gao
  * @since 2017年5月27日
  */
+@Slf4j
 public class XSSFExcelParser extends ExcelParser {
 	@Override
 	public ReportDefinition parse(InputStream inputStream) throws Exception {
@@ -65,8 +67,9 @@ public class XSSFExcelParser extends ExcelParser {
 		XSSFWorkbook book=new XSSFWorkbook(inputStream);
 		XSSFSheet sheet=book.getSheetAt(0);
 		int firstRow=0;
-		int rowCount=sheet.getPhysicalNumberOfRows();
+		int rowCount = sheet.getLastRowNum()+1;
 		int maxColumnCount=buildMaxColumn(sheet);
+		log.debug("导入模板文档rowCount: {}，maxColumnCount: {}", rowCount, maxColumnCount);
 		for(int i=firstRow;i<rowCount;i++){
 			XSSFRow row=sheet.getRow(i);
 			if(row==null){
@@ -97,7 +100,7 @@ public class XSSFExcelParser extends ExcelParser {
 					continue;
 				}
 				Span span=getSpan(sheet, i, j);
-				
+
 				Object value=null;
 				CellType cellType=cell.getCellTypeEnum();
 				switch(cellType){
@@ -182,14 +185,14 @@ public class XSSFExcelParser extends ExcelParser {
 			String rgb=color.getARGBHex();
 			style.setForecolor(hex2Rgb(rgb));
 		}else{
-			style.setForecolor("0,0,0");			
+			style.setForecolor("0,0,0");
 		}
 		FillPatternType pattern=cellStyle.getFillPatternEnum();
 		if(pattern!=null && pattern.equals(FillPatternType.SOLID_FOREGROUND)){
 			XSSFColor bgcolor=cellStyle.getFillForegroundColorColor();
 			if(bgcolor!=null){
 				String hex=bgcolor.getARGBHex();
-				style.setBgcolor(hex2Rgb(hex));					
+				style.setBgcolor(hex2Rgb(hex));
 			}
 		}
 		int fontSize=font.getFontHeight()/20;
@@ -234,15 +237,15 @@ public class XSSFExcelParser extends ExcelParser {
 				Integer.valueOf( colorStr.substring( 4, 6 ), 16 )+","+
 	            Integer.valueOf( colorStr.substring( 6, 8 ), 16 );
 	}
-	
+
 	private Span getSpan(XSSFSheet sheet,int row ,int column){
-		int sheetMergeCount = sheet.getNumMergedRegions(); 
+		int sheetMergeCount = sheet.getNumMergedRegions();
 		for (int i = 0; i < sheetMergeCount; i++) {
 			CellRangeAddress range = sheet.getMergedRegion(i);
 			int firstColumn = range.getFirstColumn();
 			int lastColumn = range.getLastColumn();
 			int firstRow = range.getFirstRow();
-			if(row == firstRow && column==firstColumn){  
+			if(row == firstRow && column==firstColumn){
 				int lastRow = range.getLastRow();
 				int rowSpan=lastRow-firstRow;
 				if(rowSpan>0){
@@ -274,9 +277,9 @@ public class XSSFExcelParser extends ExcelParser {
 		}
 		return false;
 	}
-	
+
 	private int buildMaxColumn(XSSFSheet sheet){
-		int rowCount=sheet.getPhysicalNumberOfRows();
+		int rowCount=sheet.getLastRowNum()+1;
 		int maxColumnCount=0;
 		for(int i=0;i<rowCount;i++){
 			XSSFRow row=sheet.getRow(i);
@@ -290,7 +293,7 @@ public class XSSFExcelParser extends ExcelParser {
 		}
 		return maxColumnCount;
 	}
-	
+
 	protected void addBlankCells(List<CellDefinition> cellDefs,int rowNumber,int totalColumn){
 		for(int i=0;i<totalColumn;i++){
 			CellDefinition cellDef=new CellDefinition();
@@ -300,7 +303,7 @@ public class XSSFExcelParser extends ExcelParser {
 			cellDefs.add(cellDef);
 		}
 	}
-	
+
 	@Override
 	public boolean support(String name) {
 		return name.toLowerCase().endsWith(".xlsx");
