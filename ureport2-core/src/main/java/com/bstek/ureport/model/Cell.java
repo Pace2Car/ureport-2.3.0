@@ -616,6 +616,7 @@ public class Cell implements ReportCell {
 			sb.append(text);
 			
 			int width=fontMetrics.stringWidth(sb.toString())+4;
+
 			if(width>totalColumnWidth){
 				sb.deleteCharAt(sb.length()-1);
 				totalLineHeight+=singleLineHeight;										
@@ -652,7 +653,17 @@ public class Cell implements ReportCell {
 			}
 		}
 	}
-	
+
+	//获取一个字符串，查找这个字符串出现的次数;
+	public static int getSpaceCount(String str) {
+		String key = " ";
+		int count = 0;
+		while (str.contains(key)) {
+			count++;
+			str = str.substring(str.indexOf(key) + key.length());
+		}
+		return count;
+	}
 	
 	
 	public static void main(String[] args) {

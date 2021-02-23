@@ -289,7 +289,6 @@ public class WordProducer implements Producer{
 				String[] line=text.split("\n");
 				run.setText(line[0], 0);
 				for(int i=1;i<line.length;i++){
-					run.addBreak();
 					run.setText(line[i], i);
 				}
 			}else{
