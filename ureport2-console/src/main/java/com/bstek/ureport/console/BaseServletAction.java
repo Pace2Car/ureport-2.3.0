@@ -119,7 +119,11 @@ public abstract class BaseServletAction implements ServletAction {
 			if(pos>0){
 				reportFileName=reportFileName.substring(0,pos);
 			}
-			return "预览中的报表"+extName;
+			if ("p".equals(reportFileName)) {
+				return "预览中的报表" + extName;
+			} else {
+				return reportFileName+extName;
+			}
 		}
 	}
 }
