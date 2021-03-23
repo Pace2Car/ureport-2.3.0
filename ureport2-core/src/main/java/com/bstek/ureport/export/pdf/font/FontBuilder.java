@@ -16,6 +16,7 @@
 package com.bstek.ureport.export.pdf.font;
 
 import java.awt.GraphicsEnvironment;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -24,6 +25,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.bstek.ureport.utils.OSUtil;
+import com.sun.javafx.tk.FontLoader;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeansException;
@@ -93,15 +96,24 @@ public class FontBuilder implements ApplicationContextAware{
 				return null;				
 			}
 		}
-		InputStream inputStream=null;
-		try {
-			inputStream=applicationContext.getResource(fontPath).getInputStream();
-			java.awt.Font font=java.awt.Font.createFont(java.awt.Font.TRUETYPE_FONT, inputStream);
-			return font.deriveFont(fontStyle,size);
-		} catch (Exception e) {
-			throw new ReportException(e);
-		}finally{
-			IOUtils.closeQuietly(inputStream);
+		if (OSUtil.isWindowsOs()) {
+			InputStream inputStream = null;
+			try {
+				inputStream = applicationContext.getResource(fontPath).getInputStream();
+				java.awt.Font font = java.awt.Font.createFont(java.awt.Font.TRUETYPE_FONT, inputStream);
+				return font.deriveFont(fontStyle, size);
+			} catch (Exception e) {
+				throw new ReportException(e);
+			} finally {
+				IOUtils.closeQuietly(inputStream);
+			}
+		} else {
+			try {
+				java.awt.Font font = java.awt.Font.createFont(java.awt.Font.TRUETYPE_FONT, new File(fontPath));
+				return font.deriveFont(fontStyle, size);
+			} catch (Exception e) {
+				throw new ReportException(e);
+			}
 		}
 	}
 	
@@ -131,29 +143,47 @@ public class FontBuilder implements ApplicationContextAware{
 			}
 		}
 	}
-	
-	private BaseFont getIdentityFont(String fontFamily,String fontPath,ApplicationContext applicationContext) throws DocumentException,IOException {
-		if(!fontPath.startsWith(ApplicationContext.CLASSPATH_URL_PREFIX)){
-			fontPath=ApplicationContext.CLASSPATH_URL_PREFIX+fontPath;
-		}
-		String fontName = fontPath;
-		int lastSlashPos=fontPath.lastIndexOf("/");
-		if(lastSlashPos!=-1){
-			fontName = fontPath.substring(lastSlashPos+1,fontPath.length());			
-		}
-		if (fontName.toLowerCase().endsWith(".ttc")) {
-			fontName = fontName + ",0";
-		}
-		InputStream inputStream=null;
-		try{
-			fontPathMap.put(fontFamily, fontPath);
-			inputStream=applicationContext.getResource(fontPath).getInputStream();
-			byte[] bytes = IOUtils.toByteArray(inputStream);
-			BaseFont baseFont = BaseFont.createFont(fontName, BaseFont.IDENTITY_H,BaseFont.EMBEDDED,true,bytes,null);
-			baseFont.setSubset(true);
-			return baseFont;			
-		}finally{
-			if(inputStream!=null)inputStream.close();
+
+	private BaseFont getIdentityFont(String fontFamily, String fontPath, ApplicationContext applicationContext) throws DocumentException, IOException {
+		if (OSUtil.isWindowsOs()) {
+			if (!fontPath.startsWith(ApplicationContext.CLASSPATH_URL_PREFIX)) {
+				fontPath = ApplicationContext.CLASSPATH_URL_PREFIX + fontPath;
+			}
+			String fontName = fontPath;
+			int lastSlashPos = fontPath.lastIndexOf("/");
+			if (lastSlashPos != -1) {
+				fontName = fontPath.substring(lastSlashPos + 1, fontPath.length());
+			}
+			if (fontName.toLowerCase().endsWith(".ttc")) {
+				fontName = fontName + ",0";
+			}
+			InputStream inputStream = null;
+			try {
+				fontPathMap.put(fontFamily, fontPath);
+				inputStream = applicationContext.getResource(fontPath).getInputStream();
+				byte[] bytes = IOUtils.toByteArray(inputStream);
+
+				BaseFont baseFont = BaseFont.createFont(fontName, BaseFont.IDENTITY_H, BaseFont.EMBEDDED, true, bytes, null);
+				baseFont.setSubset(true);
+				return baseFont;
+			} catch (Exception e) {
+				throw new ReportException(e);
+			} finally {
+				if (inputStream != null) inputStream.close();
+			}
+		} else {
+			String fontName = fontPath;
+			if (fontName.toLowerCase().endsWith(".ttc")) {
+				fontName = fontName + ",0";
+			}
+			try {
+				fontPathMap.put(fontFamily, fontPath);
+				BaseFont baseFont = BaseFont.createFont(fontName, BaseFont.IDENTITY_H, BaseFont.EMBEDDED);
+				baseFont.setSubset(true);
+				return baseFont;
+			} catch (Exception e) {
+				throw new ReportException(e);
+			}
 		}
 	}
 }

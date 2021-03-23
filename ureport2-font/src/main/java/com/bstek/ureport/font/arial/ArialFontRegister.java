@@ -1,6 +1,7 @@
 package com.bstek.ureport.font.arial;
 
 import com.bstek.ureport.export.pdf.font.FontRegister;
+import com.bstek.ureport.utils.OSUtil;
 
 
 /**
@@ -14,6 +15,9 @@ public class ArialFontRegister implements FontRegister {
 	}
 
 	public String getFontPath() {
-		return "com/bstek/ureport/font/arial/ARIAL.TTF";
+		if (OSUtil.isWindowsOs()) {
+			return "com/bstek/ureport/font/fangsong/SIMFANG.TTF";
+		}
+		return "/home/somp/fonts/ARIAL.TTF";
 	}
 }

@@ -1,6 +1,7 @@
 package com.bstek.ureport.font.impact;
 
 import com.bstek.ureport.export.pdf.font.FontRegister;
+import com.bstek.ureport.utils.OSUtil;
 
 /**
  * @author Jacky.gao
@@ -13,6 +14,9 @@ public class ImpactFontRegister implements FontRegister {
 	}
 
 	public String getFontPath() {
-		return "com/bstek/ureport/font/impact/IMPACT.TTF";
+		if (OSUtil.isWindowsOs()) {
+			return "com/bstek/ureport/font/fangsong/SIMFANG.TTF";
+		}
+		return "/home/somp/fonts/IMPACT.TTF";
 	}
 }

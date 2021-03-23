@@ -1,6 +1,7 @@
 package com.bstek.ureport.font.songti;
 
 import com.bstek.ureport.export.pdf.font.FontRegister;
+import com.bstek.ureport.utils.OSUtil;
 
 /**
  * @author Jacky.gao
@@ -13,6 +14,9 @@ public class SongTiFontRegister implements FontRegister {
 	}
 
 	public String getFontPath() {
-		return "com/bstek/ureport/font/songti/SIMSUN.TTC";
+		if (OSUtil.isWindowsOs()) {
+			return "com/bstek/ureport/font/fangsong/SIMFANG.TTF";
+		}
+		return "/home/somp/fonts/SIMSUN.TTC";
 	}
 }
